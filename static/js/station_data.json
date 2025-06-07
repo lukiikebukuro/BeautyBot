@@ -1,0 +1,6 @@
+{
+    "grudziadz": {"twardosc": "niska", "kropka": "green-dot"},
+    "zielona gora": {"twardosc": "umiarkowana", "kropka": "yellow-dot"},
+    "koszalin": {"twardosc": "wysoka", "kropka": "orange-dot"},
+    "gorzow wielkopolski": {"twardosc": "bardzo wysoka", "kropka": "red-dot"}
+}

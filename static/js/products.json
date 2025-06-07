@@ -1,0 +1,58 @@
+[
+  {
+    "name": "AquaHydrate - Krem Ultra Nawilżający",
+    "price": "59 zł",
+    "description": "intensywne nawilżenie dla suchej cery",
+    "problem": "sucha cera",
+    "link": "https://example.com/aquahydrate"
+  },
+  {
+    "name": "GlowMist - Mgiełka Nawilżająca",
+    "price": "35 zł",
+    "description": "odświeża i nawilża cerę w ciągu dnia",
+    "problem": "sucha cera",
+    "link": "https://example.com/glowmist"
+  },
+  {
+    "name": "ShineBoost - Odżywka Rozświetlająca",
+    "price": "39 zł",
+    "description": "dodaje blasku matowym włosom",
+    "problem": "matowe włosy",
+    "link": "https://example.com/shineboost"
+  },
+  {
+    "name": "SilkSerum - Serum Jedwabiste",
+    "price": "65 zł",
+    "description": "gładka skóra bez łuszczenia",
+    "problem": "łuszcząca się skóra",
+    "link": "https://example.com/silkserum"
+  },
+  {
+    "name": "CalmCare - Serum Kojące",
+    "price": "55 zł",
+    "description": "koi podrażnienia i zaczerwienienia",
+    "problem": "podrażnienia",
+    "link": "https://example.com/calmcare"
+  },
+  {
+    "name": "DailyGlow - Krem Uniwersalny",
+    "price": "49 zł",
+    "description": "codzienna pielęgnacja dla zdrowej skóry",
+    "problem": "dobra",
+    "link": "https://example.com/dailyglow"
+  },
+  {
+    "name": "HydraBoost - Maska Nawilżająca",
+    "price": "45 zł",
+    "description": "głębokie nawilżenie dla suchej cery",
+    "problem": "sucha cera",
+    "link": "https://example.com/hydraboost"
+  },
+  {
+    "name": "LusterLock - Spray do Włosów",
+    "price": "29 zł",
+    "description": "chroni blask włosów",
+    "problem": "matowe włosy",
+    "link": "https://example.com/lusterlock"
+  }
+]
