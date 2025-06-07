@@ -1,4 +1,4 @@
-export function startBeautyBot(type) {
+ function startBeautyBot(type) {
     const botSection = document.getElementById(`beauty-bot-${type}`);
     const messages = document.getElementById(`beauty-bot-${type}-messages`);
     const input = document.getElementById(`beauty-bot-${type}-input`);
@@ -30,8 +30,7 @@ export function startBeautyBot(type) {
 }
 
 // Reszta kodu pozostaje bez zmian
-
-async function sendMessage(type, input, messages) {
+ async function sendMessage(type, input, messages) {
     const message = input.value.trim();
     if (!message) return;
 
