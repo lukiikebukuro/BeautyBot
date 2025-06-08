@@ -50,11 +50,11 @@
             localStorage.setItem('beautyBotAddressStyle', addressStyle);
             messages.innerHTML += `<p class="bot-message">Super, ${addressStyle}! Skąd jesteś? (Np. Grudziądz, Koszalin, Gorzów Wielkopolski, Zielona Góra?) 😊</p>`;
         } else if (!city) {
-            const response = await fetch('/verify_city', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ city: message })
-            });
+            const response = await fetch('https://beautybot-backend-9e66a353b67d.herokuapp.com/verify_city', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ city: message })
+});
             const data = await response.json();
             if (data.valid) {
                 city = data.city;
