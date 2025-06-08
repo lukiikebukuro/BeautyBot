@@ -100,7 +100,7 @@ async function sendMessage(type, input, messages) {
             } else {
                 messages.innerHTML += `<p class="bot-message">Nie znam miasta '${message}', ${addressStyle}! 😕 Wpisz np. 'Koszalin'.</p>`;
             }
-        } else if (waitingForConcern) {
+        } else {
             const response = await fetch('https://beautybot-backend-9e66a353b67d.herokuapp.com/beautybot', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -114,17 +114,7 @@ async function sendMessage(type, input, messages) {
                 })
             });
             const data = await response.json();
-            let reply = data.reply;
-            if (reply.includes("Jaki jest Twój główny problem kosmetyczny")) {
-                const concerns = ['sucha cera', 'matowe włosy', 'łuszcząca się skóra', 'podrażnienia', 'dobra'];
-                let concernHtml = '<ul class="concern-list">';
-                concerns.forEach(concern => {
-                    concernHtml += `<li class="concern-item concern-${concern.replace(/ /g, '-')}" style="color: ${concern === 'dobra' ? '#bddde4' : ''}">${concern}</li>`;
-                });
-                concernHtml += '</ul>';
-                reply += concernHtml;
-            }
-            messages.innerHTML += reply;
+            messages.innerHTML += data.reply;
             if (data.waitingForConcern !== undefined) {
                 localStorage.setItem('beautyBotWaitingForConcern', data.waitingForConcern);
             }
