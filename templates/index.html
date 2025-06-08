@@ -2,24 +2,38 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BeautyBot</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        #beauty-bot-default {
+            border: 1px solid #ccc;
+            padding: 10px;
+            background-color: #f9f9f9;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        #beauty-bot-default-messages {
+            height: 200px;
+            overflow-y: scroll;
+            border: 1px solid #eee;
+            padding: 5px;
+        }
+        .bot-message, .user-message { margin: 5px 0; }
+        .bot-message { color: blue; }
+        .user-message { color: green; }
+    </style>
 </head>
 <body>
-    <div id="beauty-bot-main" class="chat-container">
-        <h1>BeautyBot</h1>
-        <div id="beauty-bot-main-messages" class="messages"></div>
-        <div class="input-container">
-            <input id="beauty-bot-main-input" type="text" placeholder="Wpisz wiadomość...">
-            <button id="beauty-bot-main-send">Wyślij</button>
-        </div>
+    <div id="beauty-bot-default">
+        <div id="beauty-bot-default-messages"></div>
+        <input id="beauty-bot-default-input" type="text" placeholder="Wpisz wiadomość...">
+        <button id="beauty-bot-default-send">Wyślij</button>
     </div>
-
-    <script type="module">
-        import { startBeautyBot } from '/static/js/aquabot.js';
-        document.addEventListener('DOMContentLoaded', () => {
-            startBeautyBot('main');
+    <script src="{{ url_for('static', filename='js/aquabot.js') }}"></script>
+    <script>
+        window.addEventListener('load', () => {
+            if (typeof startBeautyBot === 'function') startBeautyBot('default');
+            else console.log('Funkcja startBeautyBot nie znaleziona');
         });
     </script>
 </body>

@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify, render_template
 from aquabotBackend import BeautyBot
+from flask_cors import CORS  # Dodaj to, jeśli jeszcze nie masz
 
 app = Flask(__name__)
+CORS(app)  # Pozwala na żądania z Carrd
 
 @app.route('/')
 def index():
@@ -35,4 +37,4 @@ def beautybot():
     return jsonify(response)
 
 if __name__ == '__main__':
-    app.run(debug=False, port=3000)
+    app.run(debug=False)  # Usunięto port=3000
