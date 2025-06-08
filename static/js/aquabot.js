@@ -43,6 +43,7 @@ async function sendMessage(type, input, messages) {
         let waitingForConcern = localStorage.getItem('beautyBotWaitingForConcern') === 'true';
         let waitingForSubQuestion = localStorage.getItem('beautyBotWaitingForSubQuestion') === 'true';
         let currentSubQuestion = localStorage.getItem('beautyBotCurrentSubQuestion') || '';
+        const { getColor } = window.utilis || {};  // Import getColor z utilis.js
 
         if (!addressStyle) {
             addressStyle = message;
@@ -64,7 +65,10 @@ async function sendMessage(type, input, messages) {
                     body: JSON.stringify({ city: city })
                 });
                 const hardnessData = await hardnessResponse.json();
-                messages.innerHTML += `<p class="bot-message">${hardnessData.reply}</p>`;
+                // Wyciągnij wartość liczbową z odpowiedzi (np. "242.5" z "Woda w Gorzowie: 242.5 mg/L")
+                const hardnessValue = hardnessData.reply.match(/\d+\.?\d*/)?.[0] || '200'; // Domyślnie 200, jeśli brak
+                // Dodaj kółeczko z odpowiednim kolorem
+                messages.innerHTML += `<p class="bot-message">${hardnessData.reply} <span class="dot ${getColor('twardosc', hardnessValue)}"></span></p>`;
                 localStorage.setItem('beautyBotWaitingForConcern', 'true');
             } else {
                 messages.innerHTML += `<p class="bot-message">Nie znam miasta '${message}', ${addressStyle}! 😕 Wpisz np. 'Koszalin'.</p>`;
@@ -83,7 +87,9 @@ async function sendMessage(type, input, messages) {
                 })
             });
             const data = await response.json();
-            messages.innerHTML += `<p class="bot-message">${data.reply}</p>`;
+            // Wyciągnij wartość twardości, jeśli jest w odpowiedzi
+            const hardnessValue = data.reply.match(/\d+\.?\d*/)?.[0] || '200';
+            messages.innerHTML += `<p class="bot-message">${data.reply} <span class="dot ${getColor('twardosc', hardnessValue)}"></span></p>`;
 
             if (data.waitingForConcern !== undefined) {
                 localStorage.setItem('beautyBotWaitingForConcern', data.waitingForConcern);
