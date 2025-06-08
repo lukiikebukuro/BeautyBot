@@ -1,9 +1,9 @@
 from flask import Flask, request, jsonify, render_template
 from aquabotBackend import BeautyBot
-from flask_cors import CORS  # Dodaj to, jeśli jeszcze nie masz
+from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)  # Pozwala na żądania z Carrd
+CORS(app)
 
 @app.route('/')
 def index():
@@ -36,5 +36,9 @@ def beautybot():
     response = bot.getHealthAdvice(message)
     return jsonify(response)
 
+@app.errorhandler(404)
+def not_found(e):
+    return jsonify({"error": "Endpoint not found"}), 404
+
 if __name__ == '__main__':
-    app.run(debug=False)  # Usunięto port=3000
+    app.run(debug=False)

@@ -1,4 +1,4 @@
- function startBeautyBot(type) {
+function startBeautyBot(type) {
     const botSection = document.getElementById(`beauty-bot-${type}`);
     const messages = document.getElementById(`beauty-bot-${type}-messages`);
     const input = document.getElementById(`beauty-bot-${type}-input`);
@@ -29,8 +29,7 @@
     input.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(type, input, messages); };
 }
 
-// Reszta kodu pozostaje bez zmian
- async function sendMessage(type, input, messages) {
+async function sendMessage(type, input, messages) {
     const message = input.value.trim();
     if (!message) return;
 
@@ -51,15 +50,15 @@
             messages.innerHTML += `<p class="bot-message">Super, ${addressStyle}! Skąd jesteś? (Np. Grudziądz, Koszalin, Gorzów Wielkopolski, Zielona Góra?) 😊</p>`;
         } else if (!city) {
             const response = await fetch('https://beautybot-backend-9e66a353b67d.herokuapp.com/verify_city', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ city: message })
-});
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ city: message })
+            });
             const data = await response.json();
             if (data.valid) {
                 city = data.city;
                 localStorage.setItem('beautyBotCity', city);
-                const hardnessResponse = await fetch('/get_hardness', {
+                const hardnessResponse = await fetch('https://beautybot-backend-9e66a353b67d.herokuapp.com/get_hardness', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ city: city })
@@ -71,7 +70,7 @@
                 messages.innerHTML += `<p class="bot-message">Nie znam miasta '${message}', ${addressStyle}! 😕 Wpisz np. 'Koszalin'.</p>`;
             }
         } else {
-            const response = await fetch('/beautybot', {
+            const response = await fetch('https://beautybot-backend-9e66a353b67d.herokuapp.com/beautybot', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
