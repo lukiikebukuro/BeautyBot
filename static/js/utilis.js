@@ -7,5 +7,4 @@ function getColor(parameter, value) {
     if (numValue <= 250) return 'yellow-dot';
     return 'red-dot';
 }
-// Ekspozycja na globalny obiekt window
 window.utilis = { getColor };

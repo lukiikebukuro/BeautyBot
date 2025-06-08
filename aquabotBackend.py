@@ -80,7 +80,7 @@ class BeautyBot:
             return self.CITY_ALIASES[user_input]
         for city in self.water_data.keys():
             if user_input in city.lower():
-                return city
+                return city  # Zwracamy miasto w takiej formie, jak w JSON (małe litery)
         return None
 
     def match_concern(self, user_input):
@@ -96,9 +96,10 @@ class BeautyBot:
         return None
 
     def get_hardness_reply(self, city):
-        data = self.water_data[city]
-        dot = data['kropka']
-        hardness = data['twardosc']
+        city = city.lower()  # Normalizacja do małych liter
+        data = self.water_data.get(city, {})  # Bezpieczne pobieranie, domyślnie pusty słownik
+        dot = data.get('kropka', 'green-dot')  # Domyślna wartość, jeśli brak 'kropka'
+        hardness = data.get('twardosc', 'nieznana')  # Domyślna wartość, jeśli brak 'twardosc'
         who_ref = ""
         if hardness == "niska":
             who_ref = "Według WHO: niska twardość to dobra woda, ale może lekko wysuszać cerę czy włosy."
@@ -146,7 +147,7 @@ class BeautyBot:
                         tip = random.choice(self.TIPS[matched_concern])
                         reply += f" {tip}"
                     if matched_concern != "dobra" and self.water_data[self.city]['twardosc'] in ["wysoka", "bardzo wysoka"]:
-                        dot = self.water_data[self.city]['kropka']
+                        dot = self.water_data[self.city].get('kropka', 'green-dot')
                         reply += f" Twarda woda w {self.city.capitalize()} (<span class='{dot}'></span>) męczy Twoją cerę, {self.addressStyle}! Działaj, zanim skóra powie dość!"
                 else:
                     reply = "Niestety, nie mam produktu na ten problem."
@@ -235,7 +236,7 @@ class BeautyBot:
 
         if re.search(r"porady", message_lower):
             data = self.water_data[self.city]
-            dot = data['kropka']
+            dot = data.get('kropka', 'green-dot')
             if data['twardosc'] in ["wysoka", "bardzo wysoka"]:
                 reply = f"Twarda woda w {self.city.capitalize()} męczy cerę i włosy, {self.addressStyle}! 😅 Myj twarz letnią wodą i używaj kremu z ceramidami wieczorem – skóra odżyje! Polecam AquaHydrate za 59 zł. <a href='https://example.com/aquahydrate'>Kup tutaj</a>."
             else:
@@ -250,7 +251,7 @@ class BeautyBot:
 
         if re.search(r"o wodzie", message_lower):
             data = self.water_data[self.city]
-            dot = data['kropka']
+            dot = data.get('kropka', 'green-dot')
             hardness = data['twardosc']
             if hardness in ["wysoka", "bardzo wysoka"]:
                 reply = f"Woda w {self.city.capitalize()} ma {hardness} twardość (<span class='{dot}'></span>), {self.addressStyle}! Według WHO: wysusza cerę, matowi włosy i powoduje łuszczenie. Kosmetyki jak CalmCare za 55 zł to hit dla Twoich klientów! <a href='https://example.com/calmcare'>Kup tutaj</a>. Twoja cera zasługuje na więcej!"
@@ -285,7 +286,7 @@ class BeautyBot:
                     tip = random.choice(self.TIPS[matched_concern])
                     reply += f" {tip}"
                 if matched_concern != "dobra" and self.water_data[self.city]['twardosc'] in ["wysoka", "bardzo wysoka"]:
-                    dot = self.water_data[self.city]['kropka']
+                    dot = self.water_data[self.city].get('kropka', 'green-dot')
                     reply += f" Twarda woda w {self.city.capitalize()} (<span class='{dot}'></span>) męczy Twoją cerę, {self.addressStyle}! Działaj, zanim skóra powie dość!"
             else:
                 reply = "Niestety, nie mam produktu na ten problem."

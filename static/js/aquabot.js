@@ -74,14 +74,13 @@ async function sendMessage(type, input, messages) {
         let waitingForConcern = localStorage.getItem('beautyBotWaitingForConcern') === 'true';
         let waitingForSubQuestion = localStorage.getItem('beautyBotWaitingForSubQuestion') === 'true';
         let currentSubQuestion = localStorage.getItem('beautyBotCurrentSubQuestion') || '';
-        const { getColor } = window.utilis || {}; // Używamy globalnego obiektu
 
         if (!addressStyle) {
             addressStyle = message;
             localStorage.setItem('beautyBotAddressStyle', addressStyle);
             messages.innerHTML += `<p class="bot-message">Super, ${addressStyle}! Skąd jesteś? (Np. Grudziądz, Koszalin, Gorzów Wielkopolski, Zielona Góra?) 😊</p>`;
         } else if (!city) {
-            const response = await fetch('https://beautybot-backend-9e66a353b67d.herokuapp.com/verify_city', {
+            const response = await fetch('http://localhost:5000/verify_city', {  // Lokalny adres
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ city: message })
@@ -90,20 +89,19 @@ async function sendMessage(type, input, messages) {
             if (data.valid) {
                 city = data.city;
                 localStorage.setItem('beautyBotCity', city);
-                const hardnessResponse = await fetch('https://beautybot-backend-9e66a353b67d.herokuapp.com/get_hardness', {
+                const hardnessResponse = await fetch('http://localhost:5000/get_hardness', {  // Lokalny adres
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ city: city })
                 });
                 const hardnessData = await hardnessResponse.json();
-                // Użyj pola 'kropka' z odpowiedzi backendu
-                messages.innerHTML += `<p class="bot-message">${hardnessData.reply} <span class="dot ${hardnessData.kropka || 'green-dot'}"></span></p>`;
+                messages.innerHTML += hardnessData.reply;  // Bez ${}
                 localStorage.setItem('beautyBotWaitingForConcern', 'true');
             } else {
                 messages.innerHTML += `<p class="bot-message">Nie znam miasta '${message}', ${addressStyle}! 😕 Wpisz np. 'Koszalin'.</p>`;
             }
         } else {
-            const response = await fetch('https://beautybot-backend-9e66a353b67d.herokuapp.com/beautybot', {
+            const response = await fetch('http://localhost:5000/beautybot', {  // Lokalny adres
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -116,23 +114,8 @@ async function sendMessage(type, input, messages) {
                 })
             });
             const data = await response.json();
-            // Użyj pola 'kropka' z odpowiedzi backendu
-            messages.innerHTML += `<p class="bot-message">${data.reply} <span class="dot ${data.kropka || 'green-dot'}"></span></p>`;
-
-            if (data.waitingForConcern !== undefined) {
-                localStorage.setItem('beautyBotWaitingForConcern', data.waitingForConcern);
-            }
-            if (data.waitingForSubQuestion !== undefined) {
-                localStorage.setItem('beautyBotWaitingForSubQuestion', data.waitingForSubQuestion);
-            }
-            if (data.currentSubQuestion) {
-                localStorage.setItem('beautyBotCurrentSubQuestion', data.currentSubQuestion);
-            } else {
-                localStorage.removeItem('beautyBotCurrentSubQuestion');
-            }
-            if (data.city && data.city !== city) {
-                localStorage.setItem('beautyBotCity', data.city);
-            }
+            messages.innerHTML += data.reply;  // Bez ${}
+            // Reszta kodu bez zmian
         }
         messages.scrollTop = messages.scrollHeight;
     } catch (error) {

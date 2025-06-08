@@ -2,36 +2,82 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BeautyBot</title>
     <style>
-        #beauty-bot-default {
-            border: 1px solid #ccc;
-            padding: 10px;
-            background-color: #f9f9f9;
-            width: 100%;
+        .chat-container {
             max-width: 600px;
-            margin: 0 auto;
+            margin: 20px auto;
+            border: 2px solid #3a59d1;
+            padding: 15px;
+            border-radius: 10px;
         }
-        #beauty-bot-default-messages {
-            height: 200px;
-            overflow-y: scroll;
-            border: 1px solid #eee;
-            padding: 5px;
+        .messages {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 20px;
         }
-        .bot-message, .user-message { margin: 5px 0; }
-        .bot-message { color: blue; }
-        .user-message { color: green; }
+        .bot-message {
+            background: #f0f0f0;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 10px;
+            width: fit-content;
+        }
+        .user-message {
+            background: #ffe6e6;
+            padding: 10px;
+            margin: 5px;
+            border-radius: 10px;
+            width: fit-content;
+            margin-left: auto;
+        }
+        .input-container {
+            display: flex;
+            gap: 10px;
+        }
+        input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #3d90d7;
+            border-radius: 5px;
+        }
+        button {
+            padding: 10px 20px;
+            background: #3a59d1;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+        }
+        button:hover {
+            background: #dd7522;
+        }
+        .dot, .red-dot, .green-dot, .yellow-dot, .orange-dot {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin: 0 5px;
+            vertical-align: middle;
+        }
+        .red-dot { background-color: #FF0000; }
+        .green-dot { background-color: #00FF00; }
+        .yellow-dot { background-color: #FFFF00; }
+        .orange-dot { background-color: #FFA500; }
     </style>
 </head>
 <body>
-    <div id="beauty-bot-default">
-        <div id="beauty-bot-default-messages"></div>
-        <input id="beauty-bot-default-input" type="text" placeholder="Wpisz wiadomość...">
-        <button id="beauty-bot-default-send">Wyślij</button>
+    <div id="beauty-bot-default" class="chat-container">
+        <div id="beauty-bot-default-messages" class="messages"></div>
+        <div class="input-container">
+            <input id="beauty-bot-default-input" type="text" placeholder="Wpisz wiadomość...">
+            <button id="beauty-bot-default-send">Wyślij</button>
+        </div>
     </div>
-    <script src="{{ url_for('static', filename='js/aquabot.js') }}"></script>
+    <script src="/static/js/utilis.js"></script>
+    <script src="/static/js/aquabot.js"></script>
     <script>
-        window.addEventListener('load', () => {
+        document.addEventListener('DOMContentLoaded', () => {
             if (typeof startBeautyBot === 'function') startBeautyBot('default');
             else console.log('Funkcja startBeautyBot nie znaleziona');
         });
