@@ -97,10 +97,14 @@ async function sendMessage(type, input, messages) {
                 const hardnessData = await hardnessResponse.json();
                 const parser = new DOMParser();
                 const doc = parser.parseFromString(hardnessData.reply, 'text/html');
-                // Usuwanie inline stylów i dodanie klasy bot-message
+                // Usuwanie inline stylów i wymuszenie klasy
                 doc.body.querySelectorAll('*').forEach(el => {
                     el.removeAttribute('style');
-                    if (!el.classList.contains('user-message')) el.classList.add('bot-message');
+                    if (!el.classList.contains('user-message')) {
+                        el.classList.add('bot-message');
+                        el.style.fontSize = '16px'; // Wymuszenie rozmiaru
+                        el.style.maxWidth = '90%'; // Ograniczenie szerokości
+                    }
                 });
                 messages.innerHTML += doc.body.innerHTML;
                 localStorage.setItem('beautyBotWaitingForConcern', 'true');
@@ -133,10 +137,14 @@ async function sendMessage(type, input, messages) {
             }
             const parser = new DOMParser();
             const doc = parser.parseFromString(reply, 'text/html');
-            // Usuwanie inline stylów i dodanie klasy bot-message
+            // Usuwanie inline stylów i wymuszenie klasy
             doc.body.querySelectorAll('*').forEach(el => {
                 el.removeAttribute('style');
-                if (!el.classList.contains('user-message')) el.classList.add('bot-message');
+                if (!el.classList.contains('user-message')) {
+                    el.classList.add('bot-message');
+                    el.style.fontSize = '16px'; // Wymuszenie rozmiaru
+                    el.style.maxWidth = '90%'; // Ograniczenie szerokości
+                }
             });
             messages.innerHTML += doc.body.innerHTML;
             if (data.waitingForConcern !== undefined) {
