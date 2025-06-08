@@ -95,7 +95,9 @@ async function sendMessage(type, input, messages) {
                     body: JSON.stringify({ city: city })
                 });
                 const hardnessData = await hardnessResponse.json();
-                messages.innerHTML += hardnessData.reply;
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(hardnessData.reply, 'text/html');
+                messages.innerHTML += doc.body.innerHTML;
                 localStorage.setItem('beautyBotWaitingForConcern', 'true');
             } else {
                 messages.innerHTML += `<p class="bot-message">Nie znam miasta '${message}', ${addressStyle}! 😕 Wpisz np. 'Koszalin'.</p>`;
@@ -114,7 +116,19 @@ async function sendMessage(type, input, messages) {
                 })
             });
             const data = await response.json();
-            messages.innerHTML += data.reply;
+            let reply = data.reply;
+            if (reply.includes("Jaki jest Twój główny problem kosmetyczny")) {
+                const concerns = ['sucha cera', 'matowe włosy', 'łuszcząca się skóra', 'podrażnienia', 'dobra'];
+                let concernHtml = '<ul class="concern-list">';
+                concerns.forEach(concern => {
+                    concernHtml += `<li class="concern-item concern-${concern.replace(/ /g, '-')}" style="color: ${concern === 'dobra' ? '#bddde4' : ''}">${concern}</li>`;
+                });
+                concernHtml += '</ul>';
+                reply += concernHtml;
+            }
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(reply, 'text/html');
+            messages.innerHTML += doc.body.innerHTML;
             if (data.waitingForConcern !== undefined) {
                 localStorage.setItem('beautyBotWaitingForConcern', data.waitingForConcern);
             }
