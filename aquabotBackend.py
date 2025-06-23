@@ -133,17 +133,32 @@ class BeautyBot:
                 'waitingForProblem': False,
                 'selectedCategory': ""
             }
-        elif not self.city and not self.waiting_for_category:
-            self.city = "unknown"
-            self.waiting_for_category = True
-            reply = f"Twojego miasta jeszcze nie ma w naszej bazie, {self.addressStyle}, bo zbieramy dane ręcznie aby były jak najbardziej dokładne. Możesz kontynuować, a ja doradzę na podstawie typowych problemów z wodą!<br>Wybierz kategorię problemu, {self.addressStyle}:<ul><li>skóra</li><li>włosy</li><li>oczy</li></ul>"
-            return {
-                'reply': reply,
-                'city': self.city,
-                'waitingForCategory': True,
-                'waitingForProblem': False,
-                'selectedCategory': ""
-            }
+        elif not self.city or (self.city and not self.waiting_for_category and not self.waiting_for_problem):
+            matched_city = self.match_city(message_lower)
+            if matched_city:
+                self.city = matched_city
+                self.waiting_for_category = True
+                self.waiting_for_problem = False
+                self.selected_category = ""
+                reply = self.get_hardness_reply(matched_city)
+                return {
+                    'reply': reply,
+                    'city': self.city,
+                    'waitingForCategory': True,
+                    'waitingForProblem': False,
+                    'selectedCategory': ""
+                }
+            else:
+                self.city = "unknown"
+                self.waiting_for_category = True
+                reply = f"Twojego miasta jeszcze nie ma w naszej bazie, {self.addressStyle}, bo zbieramy dane ręcznie aby były jak najbardziej dokładne. Możesz kontynuować, a ja doradzę na podstawie typowych problemów z wodą!<br>Wybierz kategorię problemu, {self.addressStyle}:<ul><li>skóra</li><li>włosy</li><li>oczy</li></ul>"
+                return {
+                    'reply': reply,
+                    'city': self.city,
+                    'waitingForCategory': True,
+                    'waitingForProblem': False,
+                    'selectedCategory': ""
+                }
 
         if self.waiting_for_category:
             matched_category = self.match_category(message_lower)
