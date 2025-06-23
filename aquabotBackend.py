@@ -16,6 +16,9 @@ class BeautyBot:
         "koszlin": "koszalin",
         "gorzow": "gorzow wielkopolski",
         "zielona": "zielona gora",
+        "grudziadz": "grudziadz",
+        "grudziądz": "grudziadz",
+        "grudziadza": "grudziadz",
     }
     CATEGORY_ALIASES = {
         "skora": "skóra",
@@ -53,7 +56,18 @@ class BeautyBot:
             who_ref = "Według WHO: wysoka twardość wody może prowadzić do podrażnień i matowych włosów."
         elif hardness == "bardzo wysoka":
             who_ref = "Według WHO: bardzo wysoka twardość wody wysusza cerę, powoduje łuszczenie i matowi włosy."
-        return f"Woda w {city.capitalize()} ma {hardness} twardość (<span class='dot {dot}'></span>)! {who_ref}<br>Wybierz kategorię problemu, {self.addressStyle}:<ul><li>skóra</li><li>włosy</li><li>oczy</li></ul>"
+        range_text = self.get_hardness_range(dot)
+        return f"Woda w {city.capitalize()} ma {hardness} twardość ({range_text}) (<span class='dot {dot}'></span>)! {who_ref}<br>Wybierz kategorię problemu, {self.addressStyle}:<ul><li>skóra</li><li>włosy</li><li>oczy</li></ul>"
+
+    def get_hardness_range(self, dot):
+        if dot == "green-dot":
+            return "<150 mg CaCO3/l"
+        elif dot == "orange-dot":
+            return "150-200 mg CaCO3/l"
+        elif dot == "yellow-dot":
+            return "200-250 mg CaCO3/l"
+        else:
+            return ">250 mg CaCO3/l"
 
     def match_city(self, user_input):
         user_input = user_input.lower().strip()
@@ -91,30 +105,45 @@ class BeautyBot:
 
     def getHealthAdvice(self, message=""):
         message_lower = message.lower().strip()
-        if not self.city and not self.waiting_for_category:
-            matched_city = self.match_city(message_lower)
-            if matched_city:
-                self.city = matched_city
-                self.waiting_for_category = True
-                reply = self.get_hardness_reply(matched_city)
-                return {
-                    'reply': reply,
-                    'city': self.city,
-                    'waitingForCategory': True,
-                    'waitingForProblem': False,
-                    'selectedCategory': ""
-                }
-            else:
-                self.city = "unknown"
-                self.waiting_for_category = True
-                reply = f"Twojego miasta jeszcze nie ma w naszej bazie, {self.addressStyle}, bo zbieramy dane ręcznie aby były jak najbardziej dokładne. Możesz kontynuować, a ja doradzę na podstawie typowych problemów z wodą!<br>Wybierz kategorię problemu, {self.addressStyle}:<ul><li>skóra</li><li>włosy</li><li>oczy</li></ul>"
-                return {
-                    'reply': reply,
-                    'city': self.city,
-                    'waitingForCategory': True,
-                    'waitingForProblem': False,
-                    'selectedCategory': ""
-                }
+        norm_message = normalize_text(message_lower)
+        matched_city = self.match_city(message_lower)
+        if matched_city:
+            self.city = matched_city
+            self.waiting_for_category = True
+            self.waiting_for_problem = False
+            self.selected_category = ""
+            reply = self.get_hardness_reply(matched_city)
+            return {
+                'reply': reply,
+                'city': self.city,
+                'waitingForCategory': True,
+                'waitingForProblem': False,
+                'selectedCategory': ""
+            }
+        elif norm_message in ["zmien miasto", "zmienmiasto", "zmień miasto", "zmieńmiasto"] and self.city:
+            self.city = ""
+            self.waiting_for_category = False
+            self.waiting_for_problem = False
+            self.selected_category = ""
+            reply = f"OK, {self.addressStyle}, podaj nowe miasto, aby zacząć!"
+            return {
+                'reply': reply,
+                'city': self.city,
+                'waitingForCategory': False,
+                'waitingForProblem': False,
+                'selectedCategory': ""
+            }
+        elif not self.city and not self.waiting_for_category:
+            self.city = "unknown"
+            self.waiting_for_category = True
+            reply = f"Twojego miasta jeszcze nie ma w naszej bazie, {self.addressStyle}, bo zbieramy dane ręcznie aby były jak najbardziej dokładne. Możesz kontynuować, a ja doradzę na podstawie typowych problemów z wodą!<br>Wybierz kategorię problemu, {self.addressStyle}:<ul><li>skóra</li><li>włosy</li><li>oczy</li></ul>"
+            return {
+                'reply': reply,
+                'city': self.city,
+                'waitingForCategory': True,
+                'waitingForProblem': False,
+                'selectedCategory': ""
+            }
 
         if self.waiting_for_category:
             matched_category = self.match_category(message_lower)

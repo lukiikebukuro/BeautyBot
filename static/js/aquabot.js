@@ -59,6 +59,20 @@ async function sendMessage(type, input, messages, sendButton) {
         let waitingForProblem = localStorage.getItem('beautyBotWaitingForProblem') === 'true';
         let selectedCategory = localStorage.getItem('beautyBotSelectedCategory') || '';
 
+        if (message.toLowerCase() === 'zmień miasto') {
+            localStorage.removeItem('beautyBotCity');
+            localStorage.removeItem('beautyBotWaitingForCategory');
+            localStorage.removeItem('beautyBotWaitingForProblem');
+            localStorage.removeItem('beautyBotSelectedCategory');
+            localStorage.removeItem('beautyBotWaitingForMoreAdvice');
+            const changeCityMessage = document.createElement('p');
+            changeCityMessage.classList.add('bot-message');
+            changeCityMessage.textContent = `OK, ${addressStyle}, podaj nowe miasto, aby zacząć!`;
+            messages.appendChild(changeCityMessage);
+            messages.scrollTop = messages.scrollHeight;
+            return;
+        }
+
         if (localStorage.getItem('beautyBotWaitingForMoreAdvice') === 'true') {
             localStorage.removeItem('beautyBotWaitingForMoreAdvice');
             if (message.toLowerCase() === 'tak') {
@@ -97,30 +111,6 @@ async function sendMessage(type, input, messages, sendButton) {
             askCityMessage.classList.add('bot-message');
             askCityMessage.textContent = `Super, ${addressStyle}! Skąd jesteś? (Np. Grudziądz, Koszalin, Gorzów Wielkopolski, Zielona Góra?) 😊`;
             messages.appendChild(askCityMessage);
-        } else if (!city) {
-            // Wysyłamy jedno żądanie do /beautybot, które obsłuży zarówno znane, jak i nieznane miasta
-            const response = await fetch('http://localhost:5000/beautybot', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    message: message,
-                    addressStyle: addressStyle,
-                    city: city,
-                    waitingForCategory: waitingForCategory,
-                    waitingForProblem: waitingForProblem,
-                    selectedCategory: selectedCategory
-                })
-            });
-            const data = await response.json();
-            city = data.city || "unknown";
-            localStorage.setItem('beautyBotCity', city);
-            const botResponse = document.createElement('p');
-            botResponse.classList.add('bot-message');
-            botResponse.innerHTML = data.reply;
-            messages.appendChild(botResponse);
-            localStorage.setItem('beautyBotWaitingForCategory', data.waitingForCategory);
-            localStorage.setItem('beautyBotWaitingForProblem', data.waitingForProblem);
-            localStorage.setItem('beautyBotSelectedCategory', data.selectedCategory);
         } else {
             const response = await fetch('http://localhost:5000/beautybot', {
                 method: 'POST',
@@ -139,13 +129,13 @@ async function sendMessage(type, input, messages, sendButton) {
             botResponse.classList.add('bot-message');
             botResponse.innerHTML = data.reply;
             messages.appendChild(botResponse);
-            localStorage.setItem('beautyBotWaitingForCategory', data.waitingForCategory);
-            localStorage.setItem('beautyBotWaitingForProblem', data.waitingForProblem);
+            localStorage.setItem('beautyBotWaitingForCategory', data.waitingForCategory.toString());
+            localStorage.setItem('beautyBotWaitingForProblem', data.waitingForProblem.toString());
             localStorage.setItem('beautyBotSelectedCategory', data.selectedCategory);
-            if (data.city && data.city !== city) {
+            if (data.city) {
                 localStorage.setItem('beautyBotCity', data.city);
             }
-            if (!data.waitingForCategory && !data.waitingForProblem) {
+            if (!data.waitingForCategory && !data.waitingForProblem && data.city) {
                 localStorage.setItem('beautyBotWaitingForMoreAdvice', 'true');
                 const moreAdviceMessage = document.createElement('p');
                 moreAdviceMessage.classList.add('bot-message');
