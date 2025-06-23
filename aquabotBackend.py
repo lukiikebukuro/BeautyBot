@@ -39,6 +39,22 @@ class BeautyBot:
         self.waiting_for_problem = waiting_for_problem
         self.selected_category = selected_category
 
+    def get_hardness_reply(self, city):
+        city = city.lower()
+        data = self.water_data.get(city, {})
+        dot = data.get('kropka', 'green-dot')
+        hardness = data.get('twardosc', 'nieznana')
+        who_ref = ""
+        if hardness == "niska":
+            who_ref = "Według WHO: niska twardość to dobra woda, ale może lekko wysuszać cerę czy włosy."
+        elif hardness == "umiarkowana":
+            who_ref = "Według WHO: umiarkowana twardość może powodować lekkie wysuszenie skóry."
+        elif hardness == "wysoka":
+            who_ref = "Według WHO: wysoka twardość wody może prowadzić do podrażnień i matowych włosów."
+        elif hardness == "bardzo wysoka":
+            who_ref = "Według WHO: bardzo wysoka twardość wody wysusza cerę, powoduje łuszczenie i matowi włosy."
+        return f"Woda w {city.capitalize()} ma {hardness} twardość (<span class='dot {dot}'></span>)! {who_ref}<br>Wybierz kategorię problemu, {self.addressStyle}:<ul><li>skóra</li><li>włosy</li><li>oczy</li></ul>"
+
     def match_city(self, user_input):
         user_input = user_input.lower().strip()
         if user_input in self.CITY_ALIASES:
@@ -80,7 +96,7 @@ class BeautyBot:
             if matched_city:
                 self.city = matched_city
                 self.waiting_for_category = True
-                reply = f"Ok, {self.addressStyle}, sprawdzam wodę w {matched_city}..."
+                reply = self.get_hardness_reply(matched_city)
                 return {
                     'reply': reply,
                     'city': self.city,
