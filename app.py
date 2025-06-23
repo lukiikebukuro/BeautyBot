@@ -26,13 +26,15 @@ def get_hardness():
 @app.route('/beautybot', methods=['POST'])
 def beautybot():
     data = request.get_json()
+    print(f"Debug: Otrzymane dane: {data}")
     addressStyle = data.get('addressStyle', '')
     city = data.get('city', '')
-    waitingForConcern = data.get('waitingForConcern', False)
-    waitingForSubQuestion = data.get('waitingForSubQuestion', False)
-    currentSubQuestion = data.get('currentSubQuestion', None)
+    waitingForCategory = data.get('waitingForCategory', False)
+    waitingForProblem = data.get('waitingForProblem', False)
+    selectedCategory = data.get('selectedCategory', '')
     message = data.get('message', '')
-    bot = BeautyBot(addressStyle, city, waitingForConcern, waitingForSubQuestion, currentSubQuestion)
+    bot = BeautyBot(addressStyle, city, waitingForCategory, waitingForProblem, selectedCategory)
+    print(f"Debug: Wywołuję getHealthAdvice z message='{message}'")
     response = bot.getHealthAdvice(message)
     return jsonify(response)
 
@@ -41,4 +43,4 @@ def not_found(e):
     return jsonify({"error": "Endpoint not found"}), 404
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)

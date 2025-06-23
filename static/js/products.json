@@ -14,11 +14,11 @@
     "link": "https://example.com/glowmist"
   },
   {
-    "name": "ShineBoost - Odżywka Rozświetlająca",
-    "price": "39 zł",
-    "description": "dodaje blasku matowym włosom",
-    "problem": "matowe włosy",
-    "link": "https://example.com/shineboost"
+    "name": "SebumControl - Krem Matujący",
+    "price": "49 zł",
+    "description": "redukuje błyszczenie i matuje cerę",
+    "problem": "przetłuszczająca się cera",
+    "link": "https://example.com/sebumcontrol"
   },
   {
     "name": "SilkSerum - Serum Jedwabiste",
@@ -35,18 +35,32 @@
     "link": "https://example.com/calmcare"
   },
   {
-    "name": "DailyGlow - Krem Uniwersalny",
-    "price": "49 zł",
-    "description": "codzienna pielęgnacja dla zdrowej skóry",
-    "problem": "dobra",
-    "link": "https://example.com/dailyglow"
+    "name": "AcneFree - Serum Przeciwtrądzikowe",
+    "price": "60 zł",
+    "description": "redukuje trądzik i zapobiega nowym wypryskom",
+    "problem": "trądzik",
+    "link": "https://example.com/acnefree"
   },
   {
-    "name": "HydraBoost - Maska Nawilżająca",
+    "name": "SmoothTouch - Balsam Wygładzający",
     "price": "45 zł",
-    "description": "głębokie nawilżenie dla suchej cery",
-    "problem": "sucha cera",
-    "link": "https://example.com/hydraboost"
+    "description": "wygładza szorstką skórę",
+    "problem": "szorstkość",
+    "link": "https://example.com/smoothtouch"
+  },
+  {
+    "name": "EvenTone - Serum Wyrównujące",
+    "price": "70 zł",
+    "description": "redukuje przebarwienia i wyrównuje koloryt",
+    "problem": "przebarwienia",
+    "link": "https://example.com/eventone"
+  },
+  {
+    "name": "ShineBoost - Odżywka Rozświetlająca",
+    "price": "39 zł",
+    "description": "dodaje blasku matowym włosom",
+    "problem": "matowe włosy",
+    "link": "https://example.com/shineboost"
   },
   {
     "name": "LusterLock - Spray do Włosów",
@@ -54,5 +68,96 @@
     "description": "chroni blask włosów",
     "problem": "matowe włosy",
     "link": "https://example.com/lusterlock"
+  },
+  {
+    "name": "StrengthBoost - Odżywka Wzmacniająca",
+    "price": "42 zł",
+    "description": "wzmacnia łamliwe włosy",
+    "problem": "łamliwe włosy",
+    "link": "https://example.com/strengthboost"
+  },
+  {
+    "name": "BalanceCare - Szampon Normalizujący",
+    "price": "35 zł",
+    "description": "reguluje przetłuszczanie się włosów",
+    "problem": "przetłuszczające się włosy",
+    "link": "https://example.com/balancecare"
+  },
+  {
+    "name": "HydraLock - Maska Nawilżająca",
+    "price": "50 zł",
+    "description": "głęboko nawilża suche włosy",
+    "problem": "suche włosy",
+    "link": "https://example.com/hydralock"
+  },
+  {
+    "name": "GrowthBoost - Serum Stymulujące",
+    "price": "75 zł",
+    "description": "zmniejsza wypadanie włosów",
+    "problem": "wypadające włosy",
+    "link": "https://example.com/growthboost"
+  },
+  {
+    "name": "FrizzFree - Spray Ujarzmiający",
+    "price": "38 zł",
+    "description": "kontroluje puszenie się włosów",
+    "problem": "puszące się włosy",
+    "link": "https://example.com/frizzfree"
+  },
+  {
+    "name": "SplitEnd - Serum Regenerujące",
+    "price": "55 zł",
+    "description": "naprawia rozdwojone końcówki",
+    "problem": "rozdwojone końcówki",
+    "link": "https://example.com/splitend"
+  },
+  {
+    "name": "AquaEye - Krople Nawilżające",
+    "price": "30 zł",
+    "description": "nawilżają suche oczy",
+    "problem": "suche oczy",
+    "link": "https://example.com/aquaeye"
+  },
+  {
+    "name": "CalmEye - Żel Kojący",
+    "price": "40 zł",
+    "description": "łagodzi swędzenie oczu",
+    "problem": "swędzące oczy",
+    "link": "https://example.com/calmeye"
+  },
+  {
+    "name": "ClearEye - Krople Łagodzące",
+    "price": "35 zł",
+    "description": "redukują zaczerwienienie oczu",
+    "problem": "zaczerwienione oczy",
+    "link": "https://example.com/cleareye"
+  },
+  {
+    "name": "DePuff - Krem pod Oczy",
+    "price": "50 zł",
+    "description": "zmniejsza opuchliznę oczu",
+    "problem": "opuchnięte oczy",
+    "link": "https://example.com/depuff"
+  },
+  {
+    "name": "GentleCare - Żel Delikatny",
+    "price": "45 zł",
+    "description": "łagodzi wrażliwe oczy",
+    "problem": "wrażliwe oczy",
+    "link": "https://example.com/gentlecare"
+  },
+  {
+    "name": "ReviveEye - Serum Odświeżające",
+    "price": "60 zł",
+    "description": "odświeża zmęczone oczy",
+    "problem": "zmęczone oczy",
+    "link": "https://example.com/reviveeye"
+  },
+  {
+    "name": "SootheEye - Krople Ukojenie",
+    "price": "32 zł",
+    "description": "łagodzą pieczenie oczu",
+    "problem": "pieczące oczy",
+    "link": "https://example.com/sootheeye"
   }
 ]

@@ -6,24 +6,27 @@
     border-radius: 10px;
 }
 .messages {
+    display: flex;
+    flex-direction: column;
     max-height: 400px;
     overflow-y: auto;
     margin-bottom: 20px;
 }
 .bot-message {
+    align-self: flex-start;
     background: #f0f0f0;
     padding: 10px;
     margin: 5px;
     border-radius: 10px;
-    width: fit-content;
+    max-width: 80%;
 }
 .user-message {
+    align-self: flex-end;
     background: #d0e0ff;
     padding: 10px;
     margin: 5px;
     border-radius: 10px;
-    width: fit-content;
-    margin-left: auto;
+    max-width: 80%;
 }
 .input-container {
     display: flex;

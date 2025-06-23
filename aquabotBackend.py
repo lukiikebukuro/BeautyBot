@@ -1,6 +1,6 @@
 import json
-import re
 import random
+from fuzzywuzzy import fuzz
 
 def normalize_text(text):
     replacements = {
@@ -9,7 +9,7 @@ def normalize_text(text):
     }
     for pl, lat in replacements.items():
         text = text.replace(pl, lat)
-    return text
+    return text.lower().strip()
 
 class BeautyBot:
     CITY_ALIASES = {
@@ -17,62 +17,27 @@ class BeautyBot:
         "gorzow": "gorzow wielkopolski",
         "zielona": "zielona gora",
     }
-    CONCERN_ALIASES = {
-        "sucha": "sucha cera",
-        "cera": "sucha cera",
-        "sucha cera": "sucha cera",
-        "matowe": "matowe włosy",
-        "wlosy": "matowe włosy",
-        "matowe wlosy": "matowe włosy",
-        "matowe włosy": "matowe włosy",
-        "łuszczaca": "łuszcząca się skóra",
-        "luszczaca": "łuszcząca się skóra",
-        "skora": "łuszcząca się skóra",
-        "łuszcząca się skóra": "łuszcząca się skóra",
-        "podraznienia": "podrażnienia",
-        "dobra": "dobra",
-        "podrazniona skora": "podrażnienia",
+    CATEGORY_ALIASES = {
+        "skora": "skóra",
+        "wlosy": "włosy",
+        "oczy": "oczy",
     }
-    TIPS = {
-        "sucha cera": [
-            "Myj twarz letnią wodą, by skóra była gładka!",
-            "Używaj delikatnego żelu do mycia rano!",
-            "Nakładaj krem wieczorem po chłodnej wodzie!",
-            "Pij dużo wody – to podstawa nawilżenia!"
-        ],
-        "matowe włosy": [
-            "Używaj odżywek bez silikonów!",
-            "Spłukuj włosy letnią wodą!",
-            "Wypróbuj maskę raz w tygodniu!"
-        ],
-        "łuszcząca się skóra": [
-            "Peelinguj skórę raz w tygodniu!",
-            "Używaj balsamów z mocznikiem!",
-            "Unikaj gorących pryszniców!"
-        ],
-        "podrażnienia": [
-            "Używaj kosmetyków hipoalergicznych!",
-            "Unikaj perfumowanych produktów!",
-            "Stosuj okłady z rumianku!"
-        ],
-        "dobra": [
-            "Używaj lekkich kremów!",
-            "Pamiętaj o SPF!",
-            "Dbaj o dietę bogatą w witaminy!"
-        ]
+    CATEGORIES = {
+        "skóra": ["sucha cera", "przetłuszczająca się cera", "łuszcząca się skóra", "podrażnienia", "trądzik", "szorstkość", "przebarwienia"],
+        "włosy": ["matowe włosy", "łamliwe włosy", "przetłuszczające się włosy", "suche włosy", "wypadające włosy", "puszące się włosy", "rozdwojone końcówki"],
+        "oczy": ["suche oczy", "swędzące oczy", "zaczerwienione oczy", "opuchnięte oczy", "wrażliwe oczy", "zmęczone oczy", "pieczące oczy"]
     }
 
-    def __init__(self, addressStyle, city, waiting_for_concern=False, waiting_for_sub_question=False, current_sub_question=None):
+    def __init__(self, addressStyle, city, waiting_for_category=False, waiting_for_problem=False, selected_category=""):
         with open('static/js/station_data.json', 'r', encoding='utf-8') as f:
             self.water_data = json.load(f)
         with open('static/js/products.json', 'r', encoding='utf-8') as f:
             self.products = json.load(f)
         self.addressStyle = addressStyle or ""
         self.city = city or ""
-        self.waiting_for_concern = waiting_for_concern
-        self.waiting_for_sub_question = waiting_for_sub_question
-        self.current_sub_question = current_sub_question
-        self.sub_questions = ["sucha cera", "matowe włosy", "łuszcząca się skóra", "podrażnienia"]
+        self.waiting_for_category = waiting_for_category
+        self.waiting_for_problem = waiting_for_problem
+        self.selected_category = selected_category
 
     def match_city(self, user_input):
         user_input = user_input.lower().strip()
@@ -80,228 +45,112 @@ class BeautyBot:
             return self.CITY_ALIASES[user_input]
         for city in self.water_data.keys():
             if user_input in city.lower():
-                return city  # Zwracamy miasto w takiej formie, jak w JSON (małe litery)
+                return city
+        return None
+
+    def match_category(self, user_input):
+        user_input = user_input.lower().strip()
+        if user_input in self.CATEGORY_ALIASES:
+            return self.CATEGORY_ALIASES[user_input]
+        norm_input = normalize_text(user_input)
+        for category in self.CATEGORIES.keys():
+            norm_category = normalize_text(category)
+            if norm_input == norm_category:
+                return category
         return None
 
     def match_concern(self, user_input):
-        user_input = normalize_text(user_input.lower().strip())
-        if user_input in self.CONCERN_ALIASES:
-            return self.CONCERN_ALIASES[user_input]
-        user_words = set(user_input.split())
-        for problem in self.sub_questions + ["dobra"]:
+        user_input = normalize_text(user_input)
+        best_match = None
+        best_score = 0
+        for problem in self.CATEGORIES.get(self.selected_category, []):
             norm_problem = normalize_text(problem)
-            problem_words = set(norm_problem.split())
-            if user_words.intersection(problem_words):
-                return problem
-        return None
-
-    def get_hardness_reply(self, city):
-        city = city.lower()  # Normalizacja do małych liter
-        data = self.water_data.get(city, {})  # Bezpieczne pobieranie, domyślnie pusty słownik
-        dot = data.get('kropka', 'green-dot')  # Domyślna wartość, jeśli brak 'kropka'
-        hardness = data.get('twardosc', 'nieznana')  # Domyślna wartość, jeśli brak 'twardosc'
-        who_ref = ""
-        if hardness == "niska":
-            who_ref = "Według WHO: niska twardość to dobra woda, ale może lekko wysuszać cerę czy włosy."
-        elif hardness == "umiarkowana":
-            who_ref = "Według WHO: umiarkowana twardość może powodować lekkie wysuszenie skóry."
-        elif hardness == "wysoka":
-            who_ref = "Według WHO: wysoka twardość wody może prowadzić do podrażnień i matowych włosów."
-        elif hardness == "bardzo wysoka":
-            who_ref = "Według WHO: bardzo wysoka twardość wody wysusza cerę, powoduje łuszczenie i matowi włosy."
-        return f"Woda w {city.capitalize()}: {hardness} (<span class='{dot}'></span>)! {who_ref} Jaki jest Twój główny problem kosmetyczny, {self.addressStyle}? (Np. sucha cera, matowe włosy, łuszcząca się skóra, podrażnienia, dobra)"
-
-    def get_next_sub_question(self):
-        if not self.current_sub_question:
-            return self.sub_questions[0]
-        current_index = self.sub_questions.index(self.current_sub_question)
-        if current_index < len(self.sub_questions) - 1:
-            return self.sub_questions[current_index + 1]
+            score = fuzz.partial_ratio(user_input, norm_problem)
+            if score > best_score:
+                best_score = score
+                best_match = problem
+        if best_score > 70:
+            return best_match
         return None
 
     def getHealthAdvice(self, message=""):
         message_lower = message.lower().strip()
-        matched_city = self.match_city(message_lower)
-        if matched_city:
-            self.city = matched_city
-            self.waiting_for_concern = True
-            self.waiting_for_sub_question = False
-            self.current_sub_question = None
+        if not self.city and not self.waiting_for_category:
+            matched_city = self.match_city(message_lower)
+            if matched_city:
+                self.city = matched_city
+                self.waiting_for_category = True
+                reply = f"Ok, {self.addressStyle}, sprawdzam wodę w {matched_city}..."
+                return {
+                    'reply': reply,
+                    'city': self.city,
+                    'waitingForCategory': True,
+                    'waitingForProblem': False,
+                    'selectedCategory': ""
+                }
+            else:
+                self.city = "unknown"
+                self.waiting_for_category = True
+                reply = f"Twojego miasta jeszcze nie ma w naszej bazie, {self.addressStyle}, bo zbieramy dane ręcznie aby były jak najbardziej dokładne. Możesz kontynuować, a ja doradzę na podstawie typowych problemów z wodą!<br>Wybierz kategorię problemu, {self.addressStyle}:<ul><li>skóra</li><li>włosy</li><li>oczy</li></ul>"
+                return {
+                    'reply': reply,
+                    'city': self.city,
+                    'waitingForCategory': True,
+                    'waitingForProblem': False,
+                    'selectedCategory': ""
+                }
+
+        if self.waiting_for_category:
+            matched_category = self.match_category(message_lower)
+            if matched_category:
+                self.selected_category = matched_category
+                self.waiting_for_category = False
+                self.waiting_for_problem = True
+                problems = self.CATEGORIES[matched_category]
+                reply = f"Wybierz problem z kategorii {matched_category}, {self.addressStyle}:<ul>" + "".join([f"<li>{p}</li>" for p in problems]) + "</ul>"
+                return {
+                    'reply': reply,
+                    'city': self.city,
+                    'waitingForCategory': False,
+                    'waitingForProblem': True,
+                    'selectedCategory': self.selected_category
+                }
             return {
-                'reply': self.get_hardness_reply(matched_city),
+                'reply': f"Nie rozumiem, {self.addressStyle}! Wpisz kategorię: skóra, włosy, oczy.",
                 'city': self.city,
-                'waitingForConcern': True,
-                'waitingForSubQuestion': False,
-                'currentSubQuestion': None
+                'waitingForCategory': True,
+                'waitingForProblem': False,
+                'selectedCategory': ""
             }
 
-        if self.waiting_for_concern:
+        if self.waiting_for_problem:
             matched_concern = self.match_concern(message_lower)
-            if matched_concern:
-                self.waiting_for_concern = False
+            if matched_concern and matched_concern in self.CATEGORIES[self.selected_category]:
                 products_for_concern = [p for p in self.products if p["problem"] == matched_concern]
                 if products_for_concern:
                     product = random.choice(products_for_concern)
-                    reply = f"{self.addressStyle}, polecam {product['name']} za {product['price']}. {product['description']} <a href='{product['link']}'>Kup tutaj</a>."
-                    if matched_concern in self.TIPS:
-                        tip = random.choice(self.TIPS[matched_concern])
-                        reply += f" {tip}"
-                    if matched_concern != "dobra" and self.water_data[self.city]['twardosc'] in ["wysoka", "bardzo wysoka"]:
-                        dot = self.water_data[self.city].get('kropka', 'green-dot')
-                        reply += f" Twarda woda w {self.city.capitalize()} (<span class='{dot}'></span>) męczy Twoją cerę, {self.addressStyle}! Działaj, zanim skóra powie dość!"
+                    reply = f"{self.addressStyle}, dla {matched_concern} polecam {product['name']} za {product['price']}. {product['description']} <a href='{product['link']}'>Kup tutaj</a>"
                 else:
-                    reply = "Niestety, nie mam produktu na ten problem."
+                    reply = f"Niestety, nie mam produktu na {matched_concern}, {self.addressStyle}."
                 return {
-                    'reply': f"{reply} Co jeszcze, {self.addressStyle}? (Np. 'sucha cera', 'Inny kosmetyk', 'Porady', 'O wodzie', 'Nowe pytania')",
+                    'reply': reply,
                     'city': self.city,
-                    'waitingForConcern': False,
-                    'waitingForSubQuestion': False,
-                    'currentSubQuestion': None
+                    'waitingForCategory': False,
+                    'waitingForProblem': False,
+                    'selectedCategory': ""
                 }
             return {
-                'reply': f"Oj, {self.addressStyle}, coś Ci się palec omsknął? 😄 Wpisz np. ‘sucha cera’, ‘matowe włosy’, ‘łuszcząca się skóra’, ‘podrażnienia’, ‘dobra’ – pomogę z Twoją cerą!",
+                'reply': f"Nie rozumiem, {self.addressStyle}! Wpisz problem z kategorii {self.selected_category}:<ul>" + "".join([f"<li>{p}</li>" for p in self.CATEGORIES[self.selected_category]]) + "</ul>",
                 'city': self.city,
-                'waitingForConcern': True,
-                'waitingForSubQuestion': False,
-                'currentSubQuestion': None
-            }
-
-        if self.waiting_for_sub_question:
-            if self.current_sub_question:
-                if re.search(r"tak|mam", message_lower):
-                    products_for_concern = [p for p in self.products if p["problem"] == self.current_sub_question]
-                    if products_for_concern:
-                        product = random.choice(products_for_concern)
-                        reply = f"Na {self.current_sub_question} polecam {product['name']} za {product['price']}. {product['description']} <a href='{product['link']}'>Kup tutaj</a>."
-                        if self.current_sub_question in self.TIPS:
-                            tip = random.choice(self.TIPS[self.current_sub_question])
-                            reply += f" {tip}"
-                    else:
-                        reply = "Niestety, nie mam produktu na ten problem."
-                    next_question = self.get_next_sub_question()
-                    if next_question:
-                        self.current_sub_question = next_question
-                        reply += f" A masz {next_question}, {self.addressStyle}? (Tak/Nie)"
-                    else:
-                        self.waiting_for_sub_question = False
-                        self.current_sub_question = None
-                        reply += f" Co jeszcze, {self.addressStyle}? (Np. 'sucha cera', 'Inny kosmetyk', 'Porady', 'O wodzie', 'Nowe pytania')"
-                    return {
-                        'reply': reply,
-                        'waitingForConcern': False,
-                        'waitingForSubQuestion': self.waiting_for_sub_question,
-                        'currentSubQuestion': self.current_sub_question,
-                        'city': self.city
-                    }
-                elif re.search(r"nie", message_lower):
-                    next_question = self.get_next_sub_question()
-                    if next_question:
-                        self.current_sub_question = next_question
-                        return {
-                            'reply': f"OK, a masz {next_question}, {self.addressStyle}? (Tak/Nie)",
-                            'waitingForConcern': False,
-                            'waitingForSubQuestion': self.waiting_for_sub_question,
-                            'currentSubQuestion': self.current_sub_question,
-                            'city': self.city
-                        }
-                    else:
-                        self.waiting_for_sub_question = False
-                        self.current_sub_question = None
-                        return {
-                            'reply': f"Super, {self.addressStyle}! Co jeszcze, {self.addressStyle}? (Np. 'sucha cera', 'Inny kosmetyk', 'Porady', 'O wodzie', 'Nowe pytania')",
-                            'waitingForConcern': False,
-                            'waitingForSubQuestion': self.waiting_for_sub_question,
-                            'currentSubQuestion': self.current_sub_question,
-                            'city': self.city
-                        }
-                else:
-                    return {
-                        'reply': f"Wpisz 'tak' lub 'nie', {self.addressStyle}!",
-                        'waitingForConcern': False,
-                        'waitingForSubQuestion': self.waiting_for_sub_question,
-                        'currentSubQuestion': self.current_sub_question,
-                        'city': self.city
-                    }
-
-        if re.search(r"inny kosmetyk", message_lower):
-            product = random.choice(self.products)
-            reply = f"Może {product['name']} za {product['price']}? {product['description']} <a href='{product['link']}'>Kup tutaj</a>."
-            return {
-                'reply': f"{reply} Co jeszcze, {self.addressStyle}? (Np. 'sucha cera', 'Inny kosmetyk', 'Porady', 'O wodzie', 'Nowe pytania')",
-                'city': self.city,
-                'waitingForConcern': False,
-                'waitingForSubQuestion': False,
-                'currentSubQuestion': None
-            }
-
-        if re.search(r"porady", message_lower):
-            data = self.water_data[self.city]
-            dot = data.get('kropka', 'green-dot')
-            if data['twardosc'] in ["wysoka", "bardzo wysoka"]:
-                reply = f"Twarda woda w {self.city.capitalize()} męczy cerę i włosy, {self.addressStyle}! 😅 Myj twarz letnią wodą i używaj kremu z ceramidami wieczorem – skóra odżyje! Polecam AquaHydrate za 59 zł. <a href='https://example.com/aquahydrate'>Kup tutaj</a>."
-            else:
-                reply = f"Woda w {self.city.capitalize()} jest OK (<span class='{dot}'></span>), ale i tak dbaj o nawilżenie, {self.addressStyle}! Używaj lekkich kremów i odżywek bez silikonów."
-            return {
-                'reply': f"{reply} Co jeszcze, {self.addressStyle}? (Np. 'sucha cera', 'Inny kosmetyk', 'Porady', 'O wodzie', 'Nowe pytania')",
-                'city': self.city,
-                'waitingForConcern': False,
-                'waitingForSubQuestion': False,
-                'currentSubQuestion': None
-            }
-
-        if re.search(r"o wodzie", message_lower):
-            data = self.water_data[self.city]
-            dot = data.get('kropka', 'green-dot')
-            hardness = data['twardosc']
-            if hardness in ["wysoka", "bardzo wysoka"]:
-                reply = f"Woda w {self.city.capitalize()} ma {hardness} twardość (<span class='{dot}'></span>), {self.addressStyle}! Według WHO: wysusza cerę, matowi włosy i powoduje łuszczenie. Kosmetyki jak CalmCare za 55 zł to hit dla Twoich klientów! <a href='https://example.com/calmcare'>Kup tutaj</a>. Twoja cera zasługuje na więcej!"
-            else:
-                reply = f"Woda w {self.city.capitalize()} ma {hardness} twardość (<span class='{dot}'></span>). Jest dość łagodna dla skóry i włosów."
-            return {
-                'reply': f"{reply} Co jeszcze, {self.addressStyle}? (Np. 'sucha cera', 'Inny kosmetyk', 'Porady', 'O wodzie', 'Nowe pytania')",
-                'city': self.city,
-                'waitingForConcern': False,
-                'waitingForSubQuestion': False,
-                'currentSubQuestion': None
-            }
-
-        if re.search(r"nowe pytania", message_lower):
-            self.waiting_for_sub_question = True
-            self.current_sub_question = self.sub_questions[0]
-            return {
-                'reply': f"Masz {self.current_sub_question}, {self.addressStyle}? (Tak/Nie)",
-                'waitingForConcern': False,
-                'waitingForSubQuestion': self.waiting_for_sub_question,
-                'currentSubQuestion': self.current_sub_question,
-                'city': self.city
-            }
-
-        matched_concern = self.match_concern(message_lower)
-        if matched_concern:
-            products_for_concern = [p for p in self.products if p["problem"] == matched_concern]
-            if products_for_concern:
-                product = random.choice(products_for_concern)
-                reply = f"{self.addressStyle}, polecam {product['name']} za {product['price']}. {product['description']} <a href='{product['link']}'>Kup tutaj</a>."
-                if matched_concern in self.TIPS:
-                    tip = random.choice(self.TIPS[matched_concern])
-                    reply += f" {tip}"
-                if matched_concern != "dobra" and self.water_data[self.city]['twardosc'] in ["wysoka", "bardzo wysoka"]:
-                    dot = self.water_data[self.city].get('kropka', 'green-dot')
-                    reply += f" Twarda woda w {self.city.capitalize()} (<span class='{dot}'></span>) męczy Twoją cerę, {self.addressStyle}! Działaj, zanim skóra powie dość!"
-            else:
-                reply = "Niestety, nie mam produktu na ten problem."
-            return {
-                'reply': f"{reply} Co jeszcze, {self.addressStyle}? (Np. 'sucha cera', 'Inny kosmetyk', 'Porady', 'O wodzie', 'Nowe pytania')",
-                'city': self.city,
-                'waitingForConcern': False,
-                'waitingForSubQuestion': False,
-                'currentSubQuestion': None
+                'waitingForCategory': False,
+                'waitingForProblem': True,
+                'selectedCategory': self.selected_category
             }
 
         return {
-            'reply': f"Oj, {self.addressStyle}, coś Ci się palec omsknął? 😄 Wpisz np. ‘sucha cera’, ‘Inny kosmetyk’, ‘Porady’, ‘O wodzie’, ‘Nowe pytania’ – pomogę z Twoją cerą!",
+            'reply': f"Hmm, {self.addressStyle}, nie rozumiem. Podaj miasto, aby zacząć!",
             'city': self.city,
-            'waitingForConcern': False,
-            'waitingForSubQuestion': False,
-            'currentSubQuestion': None
+            'waitingForCategory': False,
+            'waitingForProblem': False,
+            'selectedCategory': ""
         }
