@@ -14,11 +14,61 @@ def normalize_text(text):
 class BeautyBot:
     CITY_ALIASES = {
         "koszlin": "koszalin",
+        "koszalin": "koszalin",
+        "Koszalin": "koszalin",
+        "koszalin ": "koszalin",
+        "Koszlin": "koszalin",
         "gorzow": "gorzow wielkopolski",
+        "Gorzów": "gorzow wielkopolski",
+        "Gorzów Wielkopolski": "gorzow wielkopolski",
+        "Gorzów Wlkp.": "gorzow wielkopolski",
+        "Gorzow Wielkopolski": "gorzow wielkopolski",
+        "Gorzow Wlkp.": "gorzow wielkopolski",
+        "gorzów wielkopolski": "gorzow wielkopolski",
+        "gorzow wlkp": "gorzow wielkopolski",
+        "Gorzow wlkp": "gorzow wielkopolski",
+        "Gorzów wlkp": "gorzow wielkopolski",
         "zielona": "zielona gora",
+        "Zielona": "zielona gora",
+        "Zielona Góra": "zielona gora",
+        "Zielona Gora": "zielona gora",
+        "zielona góra": "zielona gora",
+        "zielona gora ": "zielona gora",
+        "Zielona góra": "zielona gora",
         "grudziadz": "grudziadz",
+        "Grudziadz": "grudziadz",
+        "Grudziądz": "grudziadz",
+        "Grudziadza": "grudziadz",
         "grudziądz": "grudziadz",
-        "grudziadza": "grudziadz",
+        "Grudziadz ": "grudziadz",
+        "warszawa": "warszawa",
+        "Warszawa": "warszawa",
+        "warszawa ": "warszawa",
+        "Wawa": "warszawa",
+        "wawa": "warszawa",
+        "krakow": "krakow",
+        "Kraków": "krakow",
+        "krakow ": "krakow",
+        "Krakow": "krakow",
+        "gdansk": "gdansk",
+        "Gdańsk": "gdansk",
+        "gdansk ": "gdansk",
+        "Gdansk": "gdansk",
+        "poznan": "poznan",
+        "Poznań": "poznan",
+        "poznan ": "poznan",
+        "Poznan": "poznan",
+        "wroclaw": "wroclaw",
+        "Wrocław": "wroclaw",
+        "wroclaw ": "wroclaw",
+        "Wroclaw": "wroclaw",
+        "lodz": "lodz",
+        "Łódź": "lodz",
+        "lodz ": "lodz",
+        "Lodz": "lodz",
+        "szczecin": "szczecin",
+        "Szczecin": "szczecin",
+        "szczecin ": "szczecin",
     }
     CATEGORY_ALIASES = {
         "skora": "skóra",
@@ -57,7 +107,7 @@ class BeautyBot:
         elif hardness == "bardzo wysoka":
             who_ref = "Według WHO: bardzo wysoka twardość wody wysusza cerę, powoduje łuszczenie i matowi włosy."
         range_text = self.get_hardness_range(dot)
-        return f"Woda w {city.capitalize()} ma {hardness} twardość ({range_text}) (<span class='dot {dot}'></span>)! {who_ref}<br>Wybierz kategorię problemu, {self.addressStyle}:<ul><li>skóra</li><li>włosy</li><li>oczy</li></ul>"
+        return f"Woda w {city.capitalize()} ma {hardness} twardość {range_text} <span class='dot {dot}'></span>! {who_ref}<br>Wybierz kategorię problemu, {self.addressStyle}:<ul><li>skóra</li><li>włosy</li><li>oczy</li></ul>"
 
     def get_hardness_range(self, dot):
         if dot == "green-dot":
@@ -149,9 +199,9 @@ class BeautyBot:
                     'selectedCategory': ""
                 }
             else:
-                self.city = "unknown"
+                self.city = "brak danych"
                 self.waiting_for_category = True
-                reply = f"Twojego miasta jeszcze nie ma w naszej bazie, {self.addressStyle}, bo zbieramy dane ręcznie aby były jak najbardziej dokładne. Możesz kontynuować, a ja doradzę na podstawie typowych problemów z wodą!<br>Wybierz kategorię problemu, {self.addressStyle}:<ul><li>skóra</li><li>włosy</li><li>oczy</li></ul>"
+                reply = f"Twojego miasta jeszcze nie ma w naszej bazie, {self.addressStyle}, bo zbieramy dane ręcznie, aby były jak najbardziej dokładne. Możesz kontynuować, a ja doradzę na podstawie typowych problemów z wodą!<br>Wybierz kategorię problemu, {self.addressStyle}:<ul><li>skóra</li><li>włosy</li><li>oczy</li></ul>"
                 return {
                     'reply': reply,
                     'city': self.city,
