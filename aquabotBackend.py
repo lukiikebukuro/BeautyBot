@@ -78,7 +78,7 @@ class BeautyBot:
     CATEGORIES = {
         "skóra": ["sucha cera", "przetłuszczająca się cera", "łuszcząca się skóra", "podrażnienia", "trądzik", "szorstkość", "przebarwienia"],
         "włosy": ["matowe włosy", "łamliwe włosy", "przetłuszczające się włosy", "suche włosy", "wypadające włosy", "puszące się włosy", "rozdwojone końcówki"],
-        "oczy": ["suche oczy", "swędzące oczy", "zaczerwienione oczy", "opuchnięte oczy", "wrażliwe oczy", "zmęczone oczy", "pieczące oczy"]
+        "oczy": ["suche oczy", "swędzące oczy", "zaczerwienione oczy", "opuchnięte oczy", "wrażsensitive oczy", "zmęczone oczy", "pieczące oczy"]
     }
 
     def __init__(self, addressStyle, city, waiting_for_category=False, waiting_for_problem=False, selected_category=""):
@@ -226,7 +226,7 @@ class BeautyBot:
                     'selectedCategory': self.selected_category
                 }
             return {
-                'reply': f"Nie rozumiem, {self.addressStyle}! Wpisz kategorię: skóra, włosy, oczy.",
+                'reply': f"Nie rozumiem, {self.addressStyle}! Wpisz kategorię problemu:<ul><li>skóra</li><li>włosy</li><li>oczy</li></ul>",
                 'city': self.city,
                 'waitingForCategory': True,
                 'waitingForProblem': False,
